@@ -25,8 +25,10 @@ module Apartment
     # Separate Adapter for Postgresql when using schemas
     class PostgresqlSchemaAdapter < AbstractAdapter
       def initialize(config)
+        Apartment.special_log "PSA Initializing Schema Adapter"
         super
 
+        Apartment.special_log "\tPSA Resetting"
         reset
       end
 
@@ -40,8 +42,10 @@ module Apartment
       #
       def reset
         @current = default_tenant
-        Apartment.connection.schema_search_path = full_search_path
+        path = full_search_path
+        Apartment.connection.schema_search_path = path
         reset_sequence_names
+        Apartment.special_log "\tFinished Resetting to #{path}"
       end
 
       def init
@@ -71,6 +75,7 @@ module Apartment
       #   Set schema search path to new schema
       #
       def connect_to_new(tenant = nil)
+        Apartment.special_log "\tConnect to new #{tenant}"
         return reset if tenant.nil?
 
         tenant = tenant.to_s

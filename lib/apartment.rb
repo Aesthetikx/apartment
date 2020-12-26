@@ -19,6 +19,8 @@ end
 
 # Apartment main definitions
 module Apartment
+  mattr_accessor :special_logging
+
   class << self
     extend Forwardable
 
@@ -32,6 +34,15 @@ module Apartment
 
     attr_accessor(*ACCESSOR_METHODS)
     attr_writer(*WRITER_METHODS)
+
+    def special_log(message)
+      if Apartment.special_logging
+        thread = Thread.current.to_s.first(32)
+        owner = Apartment.connection.owner.to_s.first(32)
+        line = caller.select { |l| l.include?('revela') }.last
+        puts "SL #{thread} #{owner} #{line} #{message}"
+      end
+    end
 
     if ActiveRecord.version.release >= Gem::Version.new('6.1')
       def_delegators :connection_class, :connection, :connection_db_config, :establish_connection

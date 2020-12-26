@@ -19,7 +19,9 @@ module Apartment
     #   @return {subclass of Apartment::AbstractAdapter}
     #
     def adapter
+      Apartment.special_log "Loading Adapter"
       Thread.current[:apartment_adapter] ||= begin
+        Apartment.special_log "\tLA In block"
         adapter_method = "#{config[:adapter]}_adapter"
 
         if defined?(JRUBY_VERSION)
@@ -41,6 +43,7 @@ module Apartment
           raise AdapterNotFound, "database configuration specifies nonexistent #{config[:adapter]} adapter"
         end
 
+        Apartment.special_log "\tLA sending #{adapter_method}"
         send(adapter_method, config)
       end
     end
